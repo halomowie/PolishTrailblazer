@@ -1,4 +1,3 @@
-import numpy as np
 import requests
 import pandas as pd
 from datetime import datetime
@@ -51,12 +50,10 @@ def send_request_trailhead(slug):
     }
     response = requests.post(url, json={'query': query, 'variables': variables}, headers=headers)
     stats_data = response.json()['data']['profile']['trailheadStats']
-    print(stats_data)
 
     return stats_data
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     df = pd.read_excel('Trailblazers.xlsx', engine='openpyxl')
     df['slugs'] = df['Profile link'].str.split('/').str[-1]
@@ -64,19 +61,15 @@ if __name__ == '__main__':
     df['Points'] = 0
     df['Badges'] = 0
     df['Trails'] = 0
-    # df['']
-
-    # print(df)
 
     result_df = pd.DataFrame()
     for index, row in df.iterrows():
-        print(row['slugs'])
+        print(f"Processing {row['slugs']}")
         result = send_request_trailhead(row['slugs'])
         df.at[index, 'Points'] = result['earnedPointsSum']
         df.at[index, 'Badges'] = result['earnedBadgesCount']
         df.at[index, 'Trails'] = result['completedTrailCount']
 
-    print(df)
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"trailblazers_stats_{current_time}.xlsx"
     df.to_excel(filename, engine='openpyxl', index=False)
